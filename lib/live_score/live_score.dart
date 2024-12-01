@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:live_scrore/model/cricket_score_model.dart';
 
 
@@ -46,86 +47,29 @@ class _LiveScoreState extends State<LiveScore> {
 
   @override
   Widget build(BuildContext context) {
+   late GoogleMapController googleMapController;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title:const  Text("Live Scores",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-
-          // Manual featch Data and show the data
-      /*
-          Visibility(
-              replacement: const Center(child: CircularProgressIndicator(),),
-              visible: _inProgress == false,
-              child: ListView.builder(
-                itemCount: _cricketScore.length,
-                physics: const BouncingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                  final cricketScore = _cricketScore[index];
-                    return ListTile(
-
-                      leading: CircleAvatar(
-                        backgroundColor: _indicatorColor(cricketScore.isMatchRunning),
-                        radius: 8,
-                      ),
-                      title: Text(cricketScore.matchId),
-                      subtitle: Text("Team 1: ${cricketScore.teamOneName} \n Team 2: ${cricketScore.teamTwoName}"),
-                      trailing: Text("${cricketScore.teamOneScore}/ ${cricketScore.teamTwoScore}"),
-
-                    );
-                  },
-              ),
-            ),*/
+      body: GoogleMap(
+        zoomControlsEnabled: true,
+        onMapCreated: (GoogleMapController controller){
+          googleMapController = controller;
 
 
+        },
+          trafficEnabled: true,
+        mapType: MapType.normal,
+          onTap: (LatLng? latlng){
+          print(latlng);
 
-          //const SizedBox(height: 60,),
-           SizedBox(
-             height: 400,
-             child: StreamBuilder(
-                stream: FirebaseFirestore.instance.collection("cricket").snapshots(),
-                builder: (context,AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-                  if(snapshot.connectionState == ConnectionState.waiting){
-                    return const Center(child: CircularProgressIndicator(),);
-                  }
-                  if(snapshot.hasError){
-                    return Text(snapshot.error.toString());
-                  }
-                  if(snapshot.hasData){
-                    extractData(snapshot.data);
-                    return ListView.builder(
-                      itemCount: _cricketScore.length,
-                      physics: const BouncingScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final cricketScore = _cricketScore[index];
-                        return ListTile(
-
-                          leading: CircleAvatar(
-                            backgroundColor: _indicatorColor(cricketScore.isMatchRunning),
-                            radius: 8,
-                          ),
-                          title: Text(cricketScore.matchId),
-                          subtitle: Text("Team 1: ${cricketScore.teamOneName} \n Team 2: ${cricketScore.teamTwoName}\n Winner Team: ${cricketScore.winnerTeam}"),
-                          trailing: Text("${cricketScore.teamOneScore}/ ${cricketScore.teamTwoScore}"),
-
-                        );
-                      },
-                    );
-
-                  }
-                  return const SizedBox();
-
-                }
-              ),
-           ),
-
-
-
-        ],
-      ),
+          },
+          initialCameraPosition: CameraPosition(
+        zoom: 16,
+          target: LatLng(23.787524277982413, 90.37377321291159))),
 
     );
   }
